@@ -294,3 +294,53 @@ async function deleteDoc(payload) {
     console.error(err);
   }
 }
+
+
+// TODO: 毎日の情報レポート生成（集計部分がまともに動かない版）
+const createInfoReport = async () => {
+  try {
+    var maxCount = 0;
+    var praisesCollectionRef = firebase.db.collection('praises');
+    await praisesCollectionRef.get()
+    .then(query => {
+      query.forEach((doc) => {
+        var data = doc.data();
+        console.log('data.postedAt=' + JSON.stringify(data.postedAt));
+        console.log('data.from=' + JSON.stringify(data.from));
+        console.log('data.to=' + JSON.stringify(data.to));
+        console.log('data.message=' + JSON.stringify(data.message));
+        console.log('data.message=' + JSON.stringify(data.message));
+        maxCount++;
+      });
+      return query;
+    })
+    .catch((error)=>{
+      console.error(error);
+      console.log(`データの取得に失敗しました`);
+    });
+  
+  } catch (error) {
+    console.error(error);
+  }
+  var reportText = '[開発中：test message]\n';
+  reportText += '今日の褒め状況レポートです。\n';
+  reportText += '昨日は *' + maxCount + '回* 褒めています。\n';
+  reportText += '今月は *' + maxCount + '回* 褒めています。\n\n';
+  reportText += '今日もどんどんみんなを褒めましょう🎉';
+  return reportText;
+}
+
+exports.scheduledFunctionNoticeInfoReport = functions.region('asia-northeast1')
+  .pubsub
+  .schedule('every day 10:30')
+  .timeZone('Asia/Tokyo')
+  .onRun(async (context) => {
+    const reportText = await createInfoReport();
+
+    await web.chat.postMessage({
+      token: token,
+      text: reportText,
+      channel: 'C03P1BGLN', // TODO: randomのチャンネルIDを今固定で対応。
+    });
+  return null;
+  });
