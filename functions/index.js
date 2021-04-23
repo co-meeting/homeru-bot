@@ -177,24 +177,45 @@ exports.sendMonthlyReportFunc = functions.region('asia-northeast1').https.onRequ
 
 const sendMonthlyReport = async (context) => {
   try {
+    const allUsers = await web.users.list();
+    const userMap = allUsers.members.reduce((map, user) => {
+      map[user.id] = user;
+      return map;
+    }, {});
     const res = await web.conversations.members({
       channel: channel
     })
     res.members.forEach(async (userId) => {
-      const user = await web.users.info({
-        user: userId
-      });
       const querySnapshot = await db.collection('praises').where("to", "==", userId).get();
-      let message = '';
-      querySnapshot.forEach((doc) => {
+      const userDocMap = querySnapshot.docs.reduce((map, doc) => {
         const data = doc.data();
-        console.log(`${doc.id} => ${data}`);
-        message += `- ${data.message}\n`;
-      });
+        if (!data.from) return map;
+
+        if (!map[data.from]) {
+          map[data.from] = [];
+        }
+        map[data.from].push(data);
+        return map;
+      }, {});
+
+      let message = '';
+      for (const [from, docs] of Object.entries(userDocMap)) {
+        const user = userMap[from];
+        if (!user) continue;
+
+        const userName = user.real_name;
+        message += `🎉 *${userName}さんから* 🎉\n\n`;
+        docs.forEach((data) => {
+          message += `- ${data.message}\n`;
+        });
+        message += '\n';
+      }
+
       if (message) {
+        const user = userMap[userId];
         await web.chat.postMessage({
-          text: `${user.user.real_name}さん、今月の褒められレポートが送られました。\n\n` + message,
-          channel: '@hiroyukiendoh', // テスト中なの今の所固定
+          text: `${user.real_name}さん、今月の褒められレポートが送られました。\n\n${message}`,
+          channel: `@${user.name}`, // テスト中なの今の所固定
         });
       }
     })
