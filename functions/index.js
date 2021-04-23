@@ -136,6 +136,7 @@ exports.shortcut = functions.region('asia-northeast1').https.onRequest(async (re
       switch (payload.callback_id) {
         case 'homeru':
           showHomeruView(payload, res);
+          res.send('OK');
           break;
         default:
           res.sendStatus(404);
