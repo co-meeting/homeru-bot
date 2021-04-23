@@ -170,7 +170,7 @@ exports.shortcut = functions.region('asia-northeast1').https.onRequest(async (re
 });
 
 // テスト用
-exports.sendMonthlyReportFunc = functions.https.onRequest(async (request, response) => {
+exports.sendMonthlyReportFunc = functions.region('asia-northeast1').https.onRequest(async (request, response) => {
   await sendMonthlyReport(null)
   response.send('ok');
 });
@@ -206,6 +206,10 @@ const sendMonthlyReport = async (context) => {
     return;
   }
 }
+
+// 月初にダイレクトメッセージに投稿
+exports.scheduledFunction = functions.region('asia-northeast1').pubsub.schedule('1 of month 09:00')
+  .onRun(sendMonthlyReport);
 
 async function openPostedList(payload) {
   try {
