@@ -1,9 +1,13 @@
 const functions = require('firebase-functions');
+const admin = require('firebase-admin');
 const { WebClient } = require('@slack/web-api');
 
 const { token, channel } = functions.config().slack;
 
 const web = new WebClient(token);
+
+admin.initializeApp();
+const db = admin.firestore();
 
 // // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
@@ -43,7 +47,7 @@ const showHomeruView = async (payload, res) => {
                         "text": "ユーザを選択してください",
                         "emoji": true
                     },
-                    "action_id": "actionId-2"
+                    "action_id": "user"
                 },
                 "label": {
                     "type": "plain_text",
@@ -113,6 +117,16 @@ const showCompleteView = async (payload) => {
   }
 }
 
+const postHomeruComment = async (payload) => {
+  const docRef = db.collection('praises').doc();
+  const res = await docRef.set({
+    from: payload.user.id,
+    to: payload.view.state.values.user.user.selected_user,
+    message: payload.view.state.values.praise.praise.value,
+    postedAt: admin.firestore.Timestamp.fromDate(new Date())
+  });
+}
+
 exports.shortcut = functions.region('asia-northeast1').https.onRequest(async (req, res) => {
   const payload = req.body.payload
     ? JSON.parse(req.body.payload)
@@ -128,7 +142,7 @@ exports.shortcut = functions.region('asia-northeast1').https.onRequest(async (re
       break;
     case 'view_submission':
       showCompleteView(payload);
-      // await postMessage(payload, res);
+      await postHomeruComment(payload, res);
       res.send('OK');
       break;
     default:
