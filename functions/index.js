@@ -112,7 +112,7 @@ const showHomeruCompleteView = async (payload, res) => {
         }
       ]
     };
-    
+
     await postPraise(payload, res);
 
     res.setHeader('Content-Type', 'application/json');
@@ -160,6 +160,10 @@ exports.shortcut = functions.region('asia-northeast1').https.onRequest(async (re
       await showHomeruCompleteView(payload, res);
       break;
     }
+    case 'block_actions':
+      await deleteDoc(payload);
+      res.send('OK');
+      break;
     default:
       res.sendStatus(404);
   }
@@ -177,68 +181,85 @@ exports.scheduledFunction = functions.pubsub.schedule('1 of month 09:00')
 
 async function openPostedList(payload) {
   try {
-    // TODO: 投稿済みを絞り込み条件に入れる
-    const praises = (await admin.firestore().collection('praises').where('from', '==', payload.user.username).orderBy('postedAt', 'desc').get()).docs;
-    // TODO: praisesが空の場合のビュー
-    const view = {
-        "type": "modal",
-        "close": {
-            "type": "plain_text",
-            "text": "閉じる",
-            "emoji": true
-        },
-        "title": {
-            "type": "plain_text",
-            "text": "褒めbot",
-            "emoji": true
-        },
-        "blocks": praises.map(praise => {
-          const data = praise.data();
-          return {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    // TODO: 日付のフォーマットが 2021 4 23, Fri の用になってしまう
-                    "text": `
-                      ${data.postedAt.toDate().toLocaleDateString(dateFormatConfig.locale, dateFormatConfig.formatOptions)} @${data.to}\n
-                      ${data.message}
-                    `
-                },
-                "accessory": {
-                    "type": "button",
-                    "text": {
-                        "type": "plain_text",
-                        "text": "削除",
-                        "emoji": true
-                    },
-                    "value": praise.id,
-                    "action_id": "button-action",
-                    "style": "danger"
-                }
-            };
-        })
-    };
-
     await web.views.open({
       token,
       trigger_id: payload.trigger_id,
-      view
+      view: await getPostedListView(payload)
     });
   } catch (err) {
     console.error(err);
   }
 }
 
-async function openDeleteConfirm(payload) {
-  try{
-    const praise = await admin.firestore().collection('praises').doc(payload.actions[0].value).get();
-    const view = {
+async function getPostedListView(payload) {
+  // TODO: 投稿済みを絞り込み条件に入れる
+  const praises = (await admin.firestore().collection('praises').where('from', '==', payload.user.username).orderBy('postedAt', 'desc').get()).docs;
+  // TODO: praisesが空の場合のビュー
+  return {
+      "type": "modal",
+      "close": {
+          "type": "plain_text",
+          "text": "閉じる",
+          "emoji": true
+      },
+      "title": {
+          "type": "plain_text",
+          "text": "褒めbot",
+          "emoji": true
+      },
+      "blocks": praises.map(praise => {
+        const data = praise.data();
+        const homeComment = `
+          ${data.postedAt.toDate().toLocaleDateString(dateFormatConfig.locale, dateFormatConfig.formatOptions)} @${data.to}\n
+          ${data.message}
+        `;
+        return {
+              "type": "section",
+              "text": {
+                  "type": "mrkdwn",
+                  // TODO: 日付のフォーマットが 2021 4 23, Fri の用になってしまう
+                  "text": homeComment
+              },
+              "accessory": {
+                  "type": "button",
+                  "text": {
+                      "type": "plain_text",
+                      "text": "削除",
+                      "emoji": true
+                  },
+                  "value": praise.id,
+                  "action_id": "button-action",
+                  "style": "danger",
+                  "confirm": {
+                    "title": {
+                      "type": "plain_text",
+                      "text": "以下の褒めコメントを本当に削除して良いですか？"
+                    },
+                    "text": {
+                      "type": "mrkdwn",
+                      "text": homeComment
+                    },
+                    "confirm": {
+                      "type": "plain_text",
+                      "text": "削除する"
+                    },
+                    "deny": {
+                      "type": "plain_text",
+                      "text": "戻る"
+                    }
+                  }
+              }
+          };
+      })
+  };
+}
 
-    };
-    await web.views.open({
-      token,
-      trigger_id: payload.trigger_id,
-      view
+async function deleteDoc(payload) {
+  try{
+    await admin.firestore().collection('praises').doc(payload.actions[0].value).delete();
+    await web.views.update({
+      view_id: payload.view.id,
+      view: await getPostedListView(payload)
     });
 
   } catch(err) {
