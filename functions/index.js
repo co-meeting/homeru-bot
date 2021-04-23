@@ -61,6 +61,7 @@ const showHomeruView = async (payload, res) => {
           "element": {
             "action_id": "praise",
             "type": "plain_text_input",
+            "multiline": true,
             "placeholder": {
               "type": "plain_text",
               "text": "とにかく褒めてください",
