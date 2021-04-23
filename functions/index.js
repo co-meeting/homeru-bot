@@ -6,6 +6,11 @@ const { token, channel } = functions.config().slack;
 
 const web = new WebClient(token);
 
+const dateFormatConfig = {
+  locale: 'ja-JP',
+  formatOptions: { weekday: 'long', year: 'numeric', month: 'numeric', day: 'numeric' }
+};
+
 admin.initializeApp();
 const db = admin.firestore();
 
@@ -188,6 +193,7 @@ async function openPostedList(payload) {
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
+                    // TODO: 日付のフォーマットが 2021 4 23, Fri の用になってしまう
                     "text": `
                       ${data.postedAt.toDate().toLocaleDateString(dateFormatConfig.locale, dateFormatConfig.formatOptions)} @${data.to}\n
                       ${data.message}
@@ -218,3 +224,19 @@ async function openPostedList(payload) {
   }
 }
 
+async function openDeleteConfirm(payload) {
+  try{
+    const praise = await firebaseAdmin.firestore().collection('praises').doc(payload.actions[0].value).get();
+    const view = {
+
+    };
+    await web.views.open({
+      token,
+      trigger_id: payload.trigger_id,
+      view
+    });
+
+  } catch(err) {
+    console.error(err);
+  }
+}
