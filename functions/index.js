@@ -139,6 +139,9 @@ exports.shortcut = functions.region('asia-northeast1').https.onRequest(async (re
           showHomeruView(payload, res);
           res.send('OK');
           break;
+        case 'show_posted':
+          openPostedList(payload);
+          break;
         default:
           res.sendStatus(404);
       }
@@ -147,9 +150,6 @@ exports.shortcut = functions.region('asia-northeast1').https.onRequest(async (re
       showCompleteView(payload);
       await postHomeruComment(payload, res);
       res.send('OK');
-      break;
-    case 'show_posted':
-      openPostedList(payload);
       break;
     default:
       res.sendStatus(404);
