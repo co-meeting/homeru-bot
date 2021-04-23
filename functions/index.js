@@ -1,5 +1,9 @@
-const functions = require("firebase-functions");
+const functions = require('firebase-functions');
 const { WebClient } = require('@slack/web-api');
+
+const { token, channel } = functions.config().slack;
+
+const web = new WebClient(token);
 
 // // Create and Deploy Your First Cloud Functions
 // // https://firebase.google.com/docs/functions/write-firebase-functions
@@ -8,10 +12,6 @@ const { WebClient } = require('@slack/web-api');
 //   functions.logger.info("Hello logs!", {structuredData: true});
 //   response.send("Hello from Firebase!");
 // });
-
-const { token, channel } = functions.config().slack;
-
-const web = new WebClient(token);
 
 const showHomeruView = async (payload, res) => {
   try {
@@ -135,3 +135,13 @@ exports.shortcut = functions.region('asia-northeast1').https.onRequest(async (re
       res.sendStatus(404);
   }
 });
+
+// 月初にダイレクトメッセージに投稿
+exports.scheduledFunction = functions.pubsub.schedule('1 of month 09:00')
+  .onRun((context) => {
+    web.chat.postMessage({
+      text: 'Hello world!',
+      channel: '@hiroyukiendoh',
+    });
+    return null;
+  });
