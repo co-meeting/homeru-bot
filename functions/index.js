@@ -93,7 +93,7 @@ const showHomeruView = async (payload, res) => {
   }
 }
 
-const showCompleteView = async (payload) => {
+const showHomeruCompleteView = async (payload, res) => {
   try {
     const view = {
       "type": "modal",
@@ -112,10 +112,14 @@ const showCompleteView = async (payload) => {
         }
       ]
     };
-    let response = await web.views.update({
-      view_id: payload.view.id,
-      view: view
-    });
+    
+    await postPraise(payload, res);
+
+    res.setHeader('Content-Type', 'application/json');
+    res.end(JSON.stringify({
+      response_action: "update",
+      view
+    }));
 
     return;
   } catch (err) {
@@ -123,7 +127,7 @@ const showCompleteView = async (payload) => {
   }
 }
 
-const postHomeruComment = async (payload) => {
+const postPraise = async (payload) => {
   const docRef = db.collection('praises').doc();
   const res = await docRef.set({
     from: payload.user.id,
@@ -152,11 +156,10 @@ exports.shortcut = functions.region('asia-northeast1').https.onRequest(async (re
           res.sendStatus(404);
       }
       break;
-    case 'view_submission':
-      showCompleteView(payload);
-      await postHomeruComment(payload, res);
-      res.send('OK');
+    case 'view_submission': {
+      await showHomeruCompleteView(payload, res);
       break;
+    }
     default:
       res.sendStatus(404);
   }
