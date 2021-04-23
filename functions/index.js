@@ -20,60 +20,60 @@ const db = admin.firestore();
 const showHomeruView = async (payload, res) => {
   try {
     const view = {
-        "type": "modal",
-        "title": {
-            "type": "plain_text",
-            "text": "褒めボット",
-            "emoji": true
-        },
-        "submit": {
-            "type": "plain_text",
-            "text": "褒める",
-            "emoji": true
-        },
-        "close": {
-            "type": "plain_text",
-            "text": "閉じる",
-            "emoji": true
-        },
-        "blocks": [
-            {
-                "type": "input",
-                "block_id": "user",
-                "element": {
-                    "type": "users_select",
-                    "placeholder": {
-                        "type": "plain_text",
-                        "text": "ユーザを選択してください",
-                        "emoji": true
-                    },
-                    "action_id": "user"
-                },
-                "label": {
-                    "type": "plain_text",
-                    "text": "褒める対象",
-                    "emoji": true
-                }
+      "type": "modal",
+      "title": {
+        "type": "plain_text",
+        "text": "褒めボット",
+        "emoji": true
+      },
+      "submit": {
+        "type": "plain_text",
+        "text": "褒める",
+        "emoji": true
+      },
+      "close": {
+        "type": "plain_text",
+        "text": "閉じる",
+        "emoji": true
+      },
+      "blocks": [
+        {
+          "type": "input",
+          "block_id": "user",
+          "element": {
+            "type": "users_select",
+            "placeholder": {
+              "type": "plain_text",
+              "text": "ユーザを選択してください",
+              "emoji": true
             },
-            {
-                "type": "input",
-                "block_id": "praise",
-                "element": {
-                    "action_id": "praise",
-                    "type": "plain_text_input",
-                    "placeholder": {
-                        "type": "plain_text",
-                        "text": "とにかく褒めてください",
-                        "emoji": true
-                    }
-                },
-                "label": {
-                    "type": "plain_text",
-                    "text": "褒めコメント",
-                    "emoji": true
-                }
+            "action_id": "user"
+          },
+          "label": {
+            "type": "plain_text",
+            "text": "褒める対象",
+            "emoji": true
+          }
+        },
+        {
+          "type": "input",
+          "block_id": "praise",
+          "element": {
+            "action_id": "praise",
+            "type": "plain_text_input",
+            "placeholder": {
+              "type": "plain_text",
+              "text": "とにかく褒めてください",
+              "emoji": true
             }
-        ]
+          },
+          "label": {
+            "type": "plain_text",
+            "text": "褒めコメント",
+            "emoji": true
+          }
+        }
+      ]
     };
     let response = await web.views.open({
       token,
@@ -136,6 +136,7 @@ exports.shortcut = functions.region('asia-northeast1').https.onRequest(async (re
       switch (payload.callback_id) {
         case 'homeru':
           showHomeruView(payload, res);
+          break;
         default:
           res.sendStatus(404);
       }

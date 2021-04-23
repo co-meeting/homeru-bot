@@ -7,6 +7,9 @@ module.exports = {
   "plugins": [
     "promise"
   ],
+  "parserOptions": {
+    "ecmaVersion": 2017
+  },
   extends: [
     "eslint:recommended"
   ],
@@ -59,7 +62,7 @@ module.exports = {
     // Warn against unnecessary calls to .bind()
     "no-extra-bind": 1,
 
-    // Warn against unnecessary labels    
+    // Warn against unnecessary labels
     "no-extra-label": 1,
 
     // Disallow leading or trailing decimal points in numeric literals
@@ -114,7 +117,7 @@ module.exports = {
     "prefer-arrow-callback": 1,
 
     // Return inside each then() to create readable and reusable Promise chains.
-    // Forces developers to return console logs and http calls in promises. 
+    // Forces developers to return console logs and http calls in promises.
     "promise/always-return": 2,
 
     //Enforces the use of catch() on un-returned promises
