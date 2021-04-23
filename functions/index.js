@@ -146,6 +146,9 @@ exports.shortcut = functions.region('asia-northeast1').https.onRequest(async (re
       await postHomeruComment(payload, res);
       res.send('OK');
       break;
+    case 'show_posted':
+      openPostedList(payload);
+      break;
     default:
       res.sendStatus(404);
   }
@@ -160,3 +163,55 @@ exports.scheduledFunction = functions.pubsub.schedule('1 of month 09:00')
     });
     return null;
   });
+
+async function openPostedList(payload) {
+  try {
+    const praises = (await firebaseAdmin.firestore().collection('praises').where('from', '==', payload.user.username).orderBy('postedAt', 'desc').get()).docs;
+    const view = {
+        "type": "modal",
+        "close": {
+            "type": "plain_text",
+            "text": "閉じる",
+            "emoji": true
+        },
+        "title": {
+            "type": "plain_text",
+            "text": "褒めbot",
+            "emoji": true
+        },
+        "blocks": praises.map(praise => {
+          const data = praise.data();
+          return {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": `
+                      ${data.postedAt.toDate().toLocaleDateString(dateFormatConfig.locale, dateFormatConfig.formatOptions)} @${data.to}\n
+                      ${data.message}
+                    `
+                },
+                "accessory": {
+                    "type": "button",
+                    "text": {
+                        "type": "plain_text",
+                        "text": "削除",
+                        "emoji": true
+                    },
+                    "value": praise.id,
+                    "action_id": "button-action",
+                    "style": "danger"
+                }
+            };
+        })
+    };
+
+    await web.views.open({
+      token,
+      trigger_id: payload.trigger_id,
+      view
+    });
+  } catch (err) {
+    console.error(err);
+  }
+}
+
