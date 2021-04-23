@@ -168,6 +168,7 @@ exports.scheduledFunction = functions.pubsub.schedule('1 of month 09:00')
 
 async function openPostedList(payload) {
   try {
+    // TODO: 投稿済みを絞り込み条件に入れる
     const praises = (await firebaseAdmin.firestore().collection('praises').where('from', '==', payload.user.username).orderBy('postedAt', 'desc').get()).docs;
     const view = {
         "type": "modal",
