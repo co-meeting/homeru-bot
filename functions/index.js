@@ -146,6 +146,7 @@ exports.shortcut = functions.region('asia-northeast1').https.onRequest(async (re
           break;
         case 'show_posted':
           openPostedList(payload);
+          res.send('OK');
           break;
         default:
           res.sendStatus(404);
@@ -174,7 +175,8 @@ exports.scheduledFunction = functions.pubsub.schedule('1 of month 09:00')
 async function openPostedList(payload) {
   try {
     // TODO: 投稿済みを絞り込み条件に入れる
-    const praises = (await firebaseAdmin.firestore().collection('praises').where('from', '==', payload.user.username).orderBy('postedAt', 'desc').get()).docs;
+    const praises = (await admin.firestore().collection('praises').where('from', '==', payload.user.username).orderBy('postedAt', 'desc').get()).docs;
+    // TODO: praisesが空の場合のビュー
     const view = {
         "type": "modal",
         "close": {
@@ -226,7 +228,7 @@ async function openPostedList(payload) {
 
 async function openDeleteConfirm(payload) {
   try{
-    const praise = await firebaseAdmin.firestore().collection('praises').doc(payload.actions[0].value).get();
+    const praise = await admin.firestore().collection('praises').doc(payload.actions[0].value).get();
     const view = {
 
     };
