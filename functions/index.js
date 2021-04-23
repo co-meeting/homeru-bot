@@ -205,9 +205,11 @@ const sendMonthlyReport = async (context) => {
 
         const userName = user.real_name;
         message += `🎉 *${userName}さんから* 🎉\n\n`;
+        const praises = [];
         docs.forEach((data) => {
-          message += `- ${data.message}\n`;
+          praises.push(`* ${data.message}\n`);
         });
+        message += praises.join('\n');
         message += '\n';
       }
 
@@ -215,7 +217,7 @@ const sendMonthlyReport = async (context) => {
         const user = userMap[userId];
         await web.chat.postMessage({
           text: `${user.real_name}さん、今月の褒められレポートが送られました。\n\n${message}`,
-          channel: `@${user.name}`, // テスト中なの今の所固定
+          channel: `@${user.name}`
         });
       }
     })
@@ -327,23 +329,23 @@ const createInfoReport = async () => {
     var maxCount = 0;
     var praisesCollectionRef = firebase.db.collection('praises');
     await praisesCollectionRef.get()
-    .then(query => {
-      query.forEach((doc) => {
-        var data = doc.data();
-        console.log('data.postedAt=' + JSON.stringify(data.postedAt));
-        console.log('data.from=' + JSON.stringify(data.from));
-        console.log('data.to=' + JSON.stringify(data.to));
-        console.log('data.message=' + JSON.stringify(data.message));
-        console.log('data.message=' + JSON.stringify(data.message));
-        maxCount++;
+      .then(query => {
+        query.forEach((doc) => {
+          var data = doc.data();
+          console.log('data.postedAt=' + JSON.stringify(data.postedAt));
+          console.log('data.from=' + JSON.stringify(data.from));
+          console.log('data.to=' + JSON.stringify(data.to));
+          console.log('data.message=' + JSON.stringify(data.message));
+          console.log('data.message=' + JSON.stringify(data.message));
+          maxCount++;
+        });
+        return query;
+      })
+      .catch((error) => {
+        console.error(error);
+        console.log(`データの取得に失敗しました`);
       });
-      return query;
-    })
-    .catch((error)=>{
-      console.error(error);
-      console.log(`データの取得に失敗しました`);
-    });
-  
+
   } catch (error) {
     console.error(error);
   }
@@ -367,5 +369,5 @@ exports.scheduledFunctionNoticeInfoReport = functions.region('asia-northeast1')
       text: reportText,
       channel: 'C03P1BGLN', // TODO: randomのチャンネルIDを今固定で対応。
     });
-  return null;
+    return null;
   });
