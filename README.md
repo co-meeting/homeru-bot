@@ -28,12 +28,19 @@ Background color: 任意のカラー
 その後、以下の設定を行い `Save Changes`する
    - `Request URL` は後ほど正式に入力するとして、適当に`https://localhost` と入力する
    - `Create New Shortcut` ボタンをクリックして、ショートカットを作成する
+
 ```
-例）
 Where should this shortcut appear? :Global
-Name:褒めボット
-Short Description:　褒めボット
-Callback ID: how_are_you_today
+Name: 褒める（homeru）
+Short Description: 褒める
+Callback ID: homeru
+```
+
+```
+Where should this shortcut appear? :Global
+Name: 褒めコメント一覧（homeru-list）
+Short Description: 褒めコメント一覧
+Callback ID: show_posted
 ```
 
 #### 4. OAuth Tokens & Redirect URLs を開き、以下Scopesを追加
@@ -152,7 +159,7 @@ Connections                   ttl     opn     rt1     rt5     p50     p90
 Slackアプリ設定の「Interactivity & Shortcuts」を開き、`Request URL` へ以下の値を設定
 
 ```
-<ngrokのHTTPSのURL>/how-are-you-today-bot/us-central1/shortcut
+<ngrokのHTTPSのURL>/homeru-bot/us-central1/shortcut
 ```
 
 例えば、上記のコマンド出力の場合は以下の値になります。
