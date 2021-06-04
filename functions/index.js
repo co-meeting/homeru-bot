@@ -8,7 +8,7 @@ const web = new WebClient(token);
 
 const dateFormatConfig = {
   locale: 'ja-JP',
-  formatOptions: { weekday: 'long', year: 'numeric', month: 'numeric', day: 'numeric' }
+  formatOptions: { weekday: 'short', year: 'numeric', month: 'numeric', day: 'numeric', timeZone: 'Asia/Tokyo' }
 };
 
 admin.initializeApp();
@@ -302,14 +302,12 @@ async function getPostedListView(payload) {
     "blocks": praises.map(praise => {
       const data = praise.data();
       const homeComment = `
-          ${data.postedAt.toDate().toLocaleDateString(dateFormatConfig.locale, dateFormatConfig.formatOptions)} @${data.to}\n
-          ${data.message}
-        `;
+          *${data.postedAt.toDate().toLocaleDateString(dateFormatConfig.locale, dateFormatConfig.formatOptions)} @${data.to}*\n${data.message}
+      `;
       return {
         "type": "section",
         "text": {
           "type": "mrkdwn",
-          // TODO: 日付のフォーマットが 2021 4 23, Fri の用になってしまう
           "text": homeComment
         },
         "accessory": {
