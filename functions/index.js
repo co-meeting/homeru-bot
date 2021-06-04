@@ -247,8 +247,14 @@ async function openPostedList(payload) {
 }
 
 async function getPostedListView(payload) {
-  // TODO: 投稿済みを絞り込み条件に入れる
-  const praises = (await admin.firestore().collection('praises').where('from', '==', payload.user.username).orderBy('postedAt', 'desc').get()).docs;
+  const praises = (
+    await admin.firestore().collection('praises')
+      .orderBy('isNotified', 'asc')
+      .orderBy('postedAt', 'desc')
+      .where('from', '==', payload.user.username)
+      .where('isNotified', '!=', true)
+      .get()
+  ).docs;
   // TODO: praisesが空の場合のビュー
   return {
     "type": "modal",
