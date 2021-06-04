@@ -130,7 +130,6 @@ const showPostPraiseValidationErrorView = (res) => {
 }
 
 const postPraise = async (payload, res) => {
-  console.log(payload);
   const membersRes = await web.conversations.members({
     channel: channel
   });
@@ -139,12 +138,17 @@ const postPraise = async (payload, res) => {
     showPostPraiseValidationErrorView(res);
     return;
   }
+  const userRes = await web.users.info({user: toUser});
+  const toUserName = userRes.user.name;
   const docRef = db.collection('praises').doc();
   await docRef.set({
     from: payload.user.id,
+    fromName: payload.user.username,
     to: toUser,
+    toName: toUserName,
     message: payload.view.state.values.praise.praise.value,
-    postedAt: admin.firestore.Timestamp.fromDate(new Date())
+    postedAt: admin.firestore.Timestamp.fromDate(new Date()),
+    isNotified: false
   });
   showHomeruCompleteView(payload, res);
 }
