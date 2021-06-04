@@ -93,7 +93,7 @@ const showHomeruView = async (payload, res) => {
   }
 }
 
-const showHomeruCompleteView = async (payload, res) => {
+const showHomeruCompleteView = (payload, res) => {
   try {
     const view = {
       "type": "modal",
@@ -107,13 +107,11 @@ const showHomeruCompleteView = async (payload, res) => {
           "type": "section",
           "text": {
             "type": "plain_text",
-            "text": "褒めコメントを投稿しました。\n\nもっともっと褒めましょう！"
+            "text": "登録してくださりありがとうございます！\nあなたのお陰でチームの空気がまた一つ良くなりました。\nご協力ありがとうございました！"
           }
         }
       ]
     };
-
-    await postPraise(payload, res);
 
     res.setHeader('Content-Type', 'application/json');
     res.end(JSON.stringify({
@@ -127,14 +125,34 @@ const showHomeruCompleteView = async (payload, res) => {
   }
 }
 
-const postPraise = async (payload) => {
+const showPostPraiseValidationErrorView = (res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.end(JSON.stringify({
+    response_action: "errors",
+    errors: {
+      user: 'チャンネル内のユーザを選択してください。'
+    }
+  }));
+}
+
+const postPraise = async (payload, res) => {
+  console.log(payload);
+  const membersRes = await web.conversations.members({
+    channel: channel
+  });
+  const toUser = payload.view.state.values.user.user.selected_user;
+  if (!membersRes.members.includes(toUser)) {
+    showPostPraiseValidationErrorView(res);
+    return;
+  }
   const docRef = db.collection('praises').doc();
-  const res = await docRef.set({
+  await docRef.set({
     from: payload.user.id,
-    to: payload.view.state.values.user.user.selected_user,
+    to: toUser,
     message: payload.view.state.values.praise.praise.value,
     postedAt: admin.firestore.Timestamp.fromDate(new Date())
   });
+  showHomeruCompleteView(payload, res);
 }
 
 exports.shortcut = functions.region('asia-northeast1').https.onRequest(async (req, res) => {
@@ -157,7 +175,7 @@ exports.shortcut = functions.region('asia-northeast1').https.onRequest(async (re
       }
       break;
     case 'view_submission': {
-      await showHomeruCompleteView(payload, res);
+      await postPraise(payload, res);
       break;
     }
     case 'block_actions':
