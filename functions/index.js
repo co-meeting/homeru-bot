@@ -5,10 +5,12 @@ const { WebClient } = require('@slack/web-api');
 const { token, channel } = functions.config().slack;
 
 const web = new WebClient(token);
+const timezone = 'Asia/Tokyo';
+process.env.TZ = timezone;
 
 const dateFormatConfig = {
   locale: 'ja-JP',
-  formatOptions: { weekday: 'short', year: 'numeric', month: 'numeric', day: 'numeric', timeZone: 'Asia/Tokyo' }
+  formatOptions: { weekday: 'short', year: 'numeric', month: 'numeric', day: 'numeric', timeZone: timezone }
 };
 
 admin.initializeApp();
@@ -263,7 +265,7 @@ const sendMonthlyReport = async (context) => {
 
 // 月初にダイレクトメッセージに投稿
 exports.scheduledFunction = functions.region('asia-northeast1').pubsub.schedule('1 of month 09:00')
-  .timeZone('Asia/Tokyo')
+  .timeZone(timezone)
   .onRun(sendMonthlyReport);
 
 async function openPostedList(payload) {
@@ -367,52 +369,54 @@ async function deleteDoc(payload) {
   }
 }
 
-
-// TODO: 毎日の情報レポート生成（集計部分がまともに動かない版）
+// 毎日の情報レポート生成
 const createInfoReport = async () => {
+  var yesterdayCount = 0;
+  var thisMonthCount = 0;
   try {
-    var maxCount = 0;
-    var praisesCollectionRef = firebase.db.collection('praises');
-    await praisesCollectionRef.get()
-      .then(query => {
-        query.forEach((doc) => {
-          var data = doc.data();
-          console.log('data.postedAt=' + JSON.stringify(data.postedAt));
-          console.log('data.from=' + JSON.stringify(data.from));
-          console.log('data.to=' + JSON.stringify(data.to));
-          console.log('data.message=' + JSON.stringify(data.message));
-          console.log('data.message=' + JSON.stringify(data.message));
-          maxCount++;
-        });
-        return query;
-      })
-      .catch((error) => {
-        console.error(error);
-        console.log(`データの取得に失敗しました`);
-      });
-
+    var now = new Date();
+    console.log(now);
+    const today = new Date(now.setHours(0, 0, 0, 0));
+    const yesterday = new Date(now.setDate(now.getDate() - 1));
+    const thisMonth = new Date(now.setDate(1));
+    const nextMonth = new Date(now.setMonth(now.getMonth() + 1 ));
+    console.log('期間(昨日)', yesterday, '~', today);
+    console.log('期間(今月)', thisMonth, '~', nextMonth);
+    const yesterdayStartAt = admin.firestore.Timestamp.fromDate(yesterday);
+    const yesterdayEndAt = admin.firestore.Timestamp.fromDate(today);
+    const thisMonthStartAt = admin.firestore.Timestamp.fromDate(thisMonth);
+    const thisMonthEndAt = admin.firestore.Timestamp.fromDate(nextMonth);
+    const yesterdayQuerySnapshot = (await admin.firestore().collection('praises')
+      .orderBy('postedAt').startAt(yesterdayStartAt).endBefore(yesterdayEndAt).get());
+    const thisMonthQuerySnapshot = (await admin.firestore().collection('praises')
+      .orderBy('postedAt').startAt(thisMonthStartAt).endBefore(thisMonthEndAt).get());
+    yesterdayQuerySnapshot.docs.forEach((doc) => { yesterdayCount++; }, {});
+    thisMonthQuerySnapshot.docs.forEach((doc) => { thisMonthCount++; }, {});
   } catch (error) {
     console.error(error);
   }
-  var reportText = '[開発中：test message]\n';
-  reportText += '今日の褒め状況レポートです。\n';
-  reportText += '昨日は *' + maxCount + '回* 褒めています。\n';
-  reportText += '今月は *' + maxCount + '回* 褒めています。\n\n';
-  reportText += '今日もどんどんみんなを褒めましょう🎉';
+  // TODO:レポート本文の内容は、使ってみて、良い文面が思いついたら見直す
+  var reportText = '今日の褒め状況レポートです。\n\n';
+  if ( yesterdayCount > 0 ) {
+    reportText += '昨日は *' + yesterdayCount + '回* 褒めています。\n';
+  }
+  reportText += '今月は *' + thisMonthCount + '回* 褒めています。\n\n';
+  reportText += '今日も1日どんどんみんなを褒めましょう🎉';
+  console.log(reportText);
   return reportText;
 }
 
-exports.scheduledFunctionNoticeInfoReport = functions.region('asia-northeast1')
+exports.scheduledDailyReportFunc = functions.region('asia-northeast1')
   .pubsub
   .schedule('every day 10:30')
-  .timeZone('Asia/Tokyo')
+  .timeZone(timezone)
   .onRun(async (context) => {
+    console.log('channel',channel);
     const reportText = await createInfoReport();
-
     await web.chat.postMessage({
       token: token,
       text: reportText,
-      channel: 'C03P1BGLN', // TODO: randomのチャンネルIDを今固定で対応。
+      channel: channel
     });
     return null;
   });
