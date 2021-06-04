@@ -231,7 +231,7 @@ const sendMonthlyReport = async (context) => {
         message += `🎉 *${userName}さんから* 🎉\n\n`;
         const praises = [];
         docs.forEach((data) => {
-          praises.push(`* ${data.message}\n`);
+          praises.push(`• ${data.message}\n`);
         });
         message += praises.join('\n');
         message += '\n';
@@ -242,7 +242,7 @@ const sendMonthlyReport = async (context) => {
         // 設定されたチャンネルに投稿
         await web.chat.postMessage({
           text: `${user.real_name}さん、今月の褒められレポートが送られました。\n\n${message}`,
-          channel: channel
+          channel: channel,
         });
 
         querySnapshot.docs.forEach(docSnapshot => {
@@ -263,6 +263,7 @@ const sendMonthlyReport = async (context) => {
 
 // 月初にダイレクトメッセージに投稿
 exports.scheduledFunction = functions.region('asia-northeast1').pubsub.schedule('1 of month 09:00')
+  .timeZone('Asia/Tokyo')
   .onRun(sendMonthlyReport);
 
 async function openPostedList(payload) {
