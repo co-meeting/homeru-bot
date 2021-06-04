@@ -230,7 +230,7 @@ const sendMonthlyReport = async (context) => {
         const user = userMap[userId];
         // 設定されたチャンネルに投稿
         await web.chat.postMessage({
-          text: `${user.real_name}さん、今月の褒められレポートが送られました。\n\n${message}`,
+          text: `<@${user.id}>\n${user.real_name}さん、今月の褒められレポートが送られました。\n\n${message}`,
           channel: channel,
         });
 
