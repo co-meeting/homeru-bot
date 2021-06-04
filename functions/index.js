@@ -272,7 +272,7 @@ async function getPostedListView(payload) {
     await admin.firestore().collection('praises')
       .orderBy('isNotified', 'asc')
       .orderBy('postedAt', 'desc')
-      .where('from', '==', payload.user.username)
+      .where('from', '==', payload.user.id)
       .where('isNotified', '!=', true)
       .get()
   ).docs;
