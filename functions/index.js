@@ -203,10 +203,16 @@ const sendMonthlyReport = async (context) => {
     const res = await web.conversations.members({
       channel: channel
     })
+    const baseDate = new Date();
+    const startDate = new Date(baseDate.getFullYear(), (baseDate.getMonth() - 1), 1, 0, 0, 0);
+    const endDate = new Date(baseDate.getFullYear(), baseDate.getMonth(), 1, 0, 0, 0);
     res.members.forEach(async (userId) => {
-      const querySnapshot = await db.collection('praises').where("to", "==", userId).get();
-      const userDocMap = querySnapshot.docs.reduce((map, doc) => {
-        const data = doc.data();
+      const querySnapshot = await db.collection('praises')
+        .where('to', '==', userId)
+        .where('postedAt' , '>=', startDate)
+        .where('postedAt' , '<', endDate).get();
+      const userDocMap = querySnapshot.docs.reduce((map, docSnapshot) => {
+        const data = docSnapshot.data();
         if (!data.from) return map;
 
         if (!map[data.from]) {
@@ -230,12 +236,19 @@ const sendMonthlyReport = async (context) => {
         message += praises.join('\n');
         message += '\n';
       }
-
+      // TODO: isNotificationのセット
       if (message) {
         const user = userMap[userId];
+        // 設定されたチャンネルに投稿
         await web.chat.postMessage({
           text: `${user.real_name}さん、今月の褒められレポートが送られました。\n\n${message}`,
-          channel: `@${user.name}`
+          channel: channel
+        });
+
+        querySnapshot.docs.forEach(docSnapshot => {
+          docSnapshot.ref.update({
+            isNotified: true
+          });
         });
       }
     })
