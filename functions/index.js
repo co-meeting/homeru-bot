@@ -286,7 +286,6 @@ async function getPostedListView(payload) {
       .where('isNotified', '!=', true)
       .get()
   ).docs;
-  // TODO: praisesが空の場合のビュー
   return {
     "type": "modal",
     "close": {
@@ -299,46 +298,56 @@ async function getPostedListView(payload) {
       "text": "褒めbot",
       "emoji": true
     },
-    "blocks": praises.map(praise => {
-      const data = praise.data();
-      const homeComment = `
-          *${data.postedAt.toDate().toLocaleDateString(dateFormatConfig.locale, dateFormatConfig.formatOptions)} @${data.to}*\n${data.message}
-      `;
-      return {
-        "type": "section",
-        "text": {
-          "type": "mrkdwn",
-          "text": homeComment
-        },
-        "accessory": {
-          "type": "button",
+    "blocks": praises.length === 0
+      ?  [
+        {
+          "type": "section",
           "text": {
-            "type": "plain_text",
-            "text": "削除",
-            "emoji": true
-          },
-          "value": praise.id,
-          "action_id": "button-action",
-          "style": "danger",
-          "confirm": {
-            "title": {
-              "type": "plain_text",
-              "text": "以下の褒めコメントを本当に削除して良いですか？"
-            },
-            "text": {
-              "type": "mrkdwn",
-              "text": homeComment
-            },
-            "confirm": {
-              "type": "plain_text",
-              "text": "削除する"
-            },
-            "deny": {
-              "type": "plain_text",
-              "text": "戻る"
-            }
+            "type": "mrkdwn",
+            "text": "未通知の褒めコメントはありません。"
           }
         }
+      ]
+      : praises.map(praise => {
+        const data = praise.data();
+        const homeComment = `
+            *${data.postedAt.toDate().toLocaleDateString(dateFormatConfig.locale, dateFormatConfig.formatOptions)} @${data.to}*\n${data.message}
+        `;
+        return {
+          "type": "section",
+          "text": {
+            "type": "mrkdwn",
+            "text": homeComment
+          },
+          "accessory": {
+            "type": "button",
+            "text": {
+              "type": "plain_text",
+              "text": "削除",
+              "emoji": true
+            },
+            "value": praise.id,
+            "action_id": "button-action",
+            "style": "danger",
+            "confirm": {
+              "title": {
+                "type": "plain_text",
+                "text": "以下の褒めコメントを本当に削除して良いですか？"
+              },
+              "text": {
+                "type": "mrkdwn",
+                "text": homeComment
+              },
+              "confirm": {
+                "type": "plain_text",
+                "text": "削除する"
+              },
+              "deny": {
+                "type": "plain_text",
+                "text": "戻る"
+              }
+            }
+          }
       };
     })
   };
