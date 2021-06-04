@@ -1,0 +1,19 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "emulators:start",
+            "type": "shell",
+            "command": "firebase emulators:start",
+            "detail": "firebaseのエミュレータを立ち上げる"
+        },
+        {
+            "label": "ngrok",
+            "type": "shell",
+            "command": "ngrok http 5001",
+            "detail": "firebaseエミュレータのデフォルトポート5001を公開する"
+        }
+    ]
+}
