@@ -9,6 +9,10 @@
           "order": "ASCENDING"
         },
         {
+          "fieldPath": "to",
+          "order": "ASCENDING"
+        },
+        {
           "fieldPath": "isNotified",
           "order": "ASCENDING"
         },
