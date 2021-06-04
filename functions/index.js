@@ -181,13 +181,17 @@ exports.shortcut = functions.region('asia-northeast1').https.onRequest(async (re
   }
 });
 
+const getSlackUserMap = async () => {
+  const allUsers = await web.users.list();
+  return allUsers.members.reduce((map, user) => {
+    map[user.id] = user;
+    return map;
+  }, {})
+}
+
 const sendMonthlyReport = async (context) => {
   try {
-    const allUsers = await web.users.list();
-    const userMap = allUsers.members.reduce((map, user) => {
-      map[user.id] = user;
-      return map;
-    }, {});
+    const userMap = await getSlackUserMap();
     const res = await web.conversations.members({
       channel: channel
     })
@@ -276,6 +280,7 @@ async function getPostedListView(payload) {
       .where('isNotified', '!=', true)
       .get()
   ).docs;
+  const userMap = await getSlackUserMap();
   return {
     "type": "modal",
     "close": {
@@ -300,8 +305,9 @@ async function getPostedListView(payload) {
       ]
       : praises.map(praise => {
         const data = praise.data();
+        const toUser = userMap[data.to];
         const homeComment = `
-            *${data.postedAt.toDate().toLocaleDateString(dateFormatConfig.locale, dateFormatConfig.formatOptions)} @${data.to}*\n${data.message}
+            *${data.postedAt.toDate().toLocaleDateString(dateFormatConfig.locale, dateFormatConfig.formatOptions)} @${toUser.real_name}*\n${data.message}
         `;
         return {
           "type": "section",
