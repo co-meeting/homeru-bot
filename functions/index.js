@@ -16,14 +16,6 @@ const dateFormatConfig = {
 admin.initializeApp();
 const db = admin.firestore();
 
-// // Create and Deploy Your First Cloud Functions
-// // https://firebase.google.com/docs/functions/write-firebase-functions
-//
-// exports.helloWorld = functions.https.onRequest((request, response) => {
-//   functions.logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
-
 const showHomeruView = async (payload, res) => {
   try {
     const view = {
@@ -189,12 +181,6 @@ exports.shortcut = functions.region('asia-northeast1').https.onRequest(async (re
   }
 });
 
-// テスト用
-exports.sendMonthlyReportFunc = functions.region('asia-northeast1').https.onRequest(async (request, response) => {
-  await sendMonthlyReport(null)
-  response.send('ok');
-});
-
 const sendMonthlyReport = async (context) => {
   try {
     const allUsers = await web.users.list();
@@ -208,6 +194,7 @@ const sendMonthlyReport = async (context) => {
     const baseDate = new Date();
     const startDate = new Date(baseDate.getFullYear(), (baseDate.getMonth() - 1), 1, 0, 0, 0);
     const endDate = new Date(baseDate.getFullYear(), baseDate.getMonth(), 1, 0, 0, 0);
+    console.log(startDate, endDate);
     res.members.forEach(async (userId) => {
       const querySnapshot = await db.collection('praises')
         .where('to', '==', userId)
