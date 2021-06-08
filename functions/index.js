@@ -277,14 +277,13 @@ async function openPostedList(payload) {
 
 async function getPostedListView(payload) {
   const praises = (
-    await admin.firestore().collection('praises')
+    await db.collection('praises')
       .orderBy('isNotified', 'asc')
       .orderBy('postedAt', 'desc')
       .where('from', '==', payload.user.id)
       .where('isNotified', '!=', true)
       .get()
   ).docs;
-  const userMap = await getSlackUserMap();
   return {
     "type": "modal",
     "close": {
@@ -309,9 +308,8 @@ async function getPostedListView(payload) {
       ]
       : praises.map(praise => {
         const data = praise.data();
-        const toUser = userMap[data.to];
         const homeComment = `
-            *${data.postedAt.toDate().toLocaleDateString(dateFormatConfig.locale, dateFormatConfig.formatOptions)} @${toUser.real_name}*\n${data.message}
+            *${data.postedAt.toDate().toLocaleDateString(dateFormatConfig.locale, dateFormatConfig.formatOptions)} @${data.toName}*\n${data.message}
         `;
         return {
           "type": "section",
