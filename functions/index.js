@@ -265,9 +265,34 @@ exports.scheduledFunction = functions.region('asia-northeast1').pubsub.schedule(
 
 async function openPostedList(payload) {
   try {
-    await web.views.open({
+    const openedModalResponse = await web.views.open({
       token,
       trigger_id: payload.trigger_id,
+      view: {
+        "type": "modal",
+        "close": {
+          "type": "plain_text",
+          "text": "閉じる",
+          "emoji": true
+        },
+        "title": {
+          "type": "plain_text",
+          "text": "褒めボット",
+          "emoji": true
+        },
+        "blocks": [
+          {
+            "type": "section",
+            "text": {
+              "type": "mrkdwn",
+              "text": "褒めコメントを取得しています...\nなかなか切り替わらない場合は開き直してください"
+            }
+          }
+        ]
+      }
+    });
+    await web.views.update({
+      view_id: openedModalResponse.view.id,
       view: await getPostedListView(payload)
     });
   } catch (err) {
@@ -293,7 +318,7 @@ async function getPostedListView(payload) {
     },
     "title": {
       "type": "plain_text",
-      "text": "褒めbot",
+      "text": "褒めボット",
       "emoji": true
     },
     "blocks": praises.length === 0
