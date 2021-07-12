@@ -70,7 +70,7 @@ Default username: homeru_bot
 
 #### 事前準備
 
- 1. nodeのバージョンを14に変更する。
+ 1. nodeのバージョン14をインストールする。
  2. [Firebase console](https://console.firebase.google.com/?hl=ja)にログインする。
  3. consoleで新しいFirebaseのプロジェクトを作成する。プロジェクト名は `homeru-bot` に設定する。
  4. 作成したFirebaseプロジェクトをBlaze（従量課金）にアップグレードする。
