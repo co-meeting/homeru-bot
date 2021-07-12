@@ -104,8 +104,8 @@ npm run deploy
 
 #### 4. Slackアプリ設定の `Request URL`へ設定
 
-FirebaseプロジェクトコンソールでFunctionsを開き、デプロイされた関数のURLを確認する。  
-`https://asia-northeast1-<プロジェクト名>.cloudfunctions.net/shortcut` のようなURLになる。  
+FirebaseプロジェクトコンソールでFunctionsを開き、デプロイされた関数`shortcut`のURLを確認する。  
+`https://asia-northeast1-<プロジェクトID>.cloudfunctions.net/shortcut` のようなURLになる。  
 Slackアプリ設定ページの「Interactivity & Shortcuts」を開き、`Request URL` へそのURLを設定する。
 
 ### 以上で、Slackのショートカットから投稿できるようになります。
