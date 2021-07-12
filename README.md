@@ -43,7 +43,7 @@ Short Description: 褒めコメント一覧
 Callback ID: show_posted
 ```
 
-#### 4. OAuth Tokens & Redirect URLs を開き、以下Scopesを追加
+#### 4. OAuth & Permissions を開き、以下Scopesを追加
  - `chat:write`
  - `users:read`
  - `channels:read`
