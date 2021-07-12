@@ -119,7 +119,7 @@ cp functions/.runtimeconfig.json.example functions/.runtimeconfig.json
 
 `functions/.runtimeconfig.json` を適切に設定する
  - "channel" : 褒めレポートを投稿するチャンネルID
- - "token" : Slackアプリ設定ページの `Install App` > `Bot User OAuth Access Token`
+ - "token" : Slackアプリ設定ページの `Install App` > `Bot User OAuth Token`
 
 ### 2.npm パッケージのインストール
 ```
