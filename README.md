@@ -90,7 +90,7 @@ firebase functions:config:set slack.token=<ボットのアクセストークン>
 ```
 
  - <投稿先のチャンネルID> : 「今日のひとこと」を投稿するチャンネルID。Slackの投稿をブラウザで開くとURLから確認できます。
- - <ボットのアクセストークン> : Slackアプリ設定ページの `Install App` > `Bot User OAuth Access Token`
+ - <ボットのアクセストークン> : Slackアプリ設定ページの `Install App` > `Bot User OAuth Token`
 
 #### 3.デプロイする
 ```
