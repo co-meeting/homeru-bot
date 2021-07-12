@@ -81,7 +81,10 @@ Default username: homeru_bot
 #### 1.プロジェクトでfirebaseにログイン
 ```
 firebase login
+firebase use homeru-bot
 ```
+
+ ※ `firebase projects:list` コメンドを十呼応してfirebase上で作成したプロジェクトと連携されているか確認する。
 
 #### 2.アクセストークンを登録する
 
