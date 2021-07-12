@@ -232,7 +232,6 @@ const sendMonthlyReport = async (context) => {
         message += praises.join('\n');
         message += '\n';
       }
-      // TODO: isNotificationのセット
       if (message) {
         const user = userMap[userId];
         // 設定されたチャンネルに投稿
@@ -257,7 +256,7 @@ const sendMonthlyReport = async (context) => {
   }
 }
 
-// 月初にダイレクトメッセージに投稿
+// 月初に設定されたチャンネルにメッセージを投稿
 exports.scheduledFunction = functions.region('asia-northeast1').pubsub.schedule('1 of month 09:00')
   .timeZone(timezone)
   .onRun(sendMonthlyReport);
@@ -389,11 +388,9 @@ async function deleteDoc(payload) {
 }
 
 // 毎日の情報レポート生成
-const createInfoReport = async () => {
-  var yesterdayCount = 0;
-  var thisMonthCount = 0;
+const sendDailyReport = async (context) => {
   try {
-    var now = new Date();
+    const now = new Date();
     const today = new Date(now.setHours(0, 0, 0, 0));
     const yesterday = new Date(now.setDate(now.getDate() - 1));
     const thisMonth = new Date(now.setDate(1));
@@ -406,31 +403,28 @@ const createInfoReport = async () => {
       .orderBy('postedAt').startAt(yesterdayStartAt).endBefore(yesterdayEndAt).get());
     const thisMonthQuerySnapshot = (await admin.firestore().collection('praises')
       .orderBy('postedAt').startAt(thisMonthStartAt).endBefore(thisMonthEndAt).get());
-    yesterdayQuerySnapshot.docs.forEach((doc) => { yesterdayCount++; }, {});
-    thisMonthQuerySnapshot.docs.forEach((doc) => { thisMonthCount++; }, {});
+    const yesterdayCount = yesterdayQuerySnapshot.docs.length;
+    const thisMonthCount = thisMonthQuerySnapshot.docs.length;
+    // TODO:レポート本文の内容は、使ってみて、良い文面が思いついたら見直す
+    let reportText = '今日の褒め状況レポートです。\n\n';
+    if ( yesterdayCount > 0 ) {
+      reportText += '昨日は *' + yesterdayCount + '回* 褒めています。\n';
+    }
+    reportText += '今月は *' + thisMonthCount + '回* 褒めています。\n\n';
+    reportText += '今日も1日どんどんみんなを褒めましょう🎉';
+
+    await web.chat.postMessage({
+      token: token,
+      text: reportText,
+      channel: channel
+    });
   } catch (error) {
     console.error(error);
   }
-  // TODO:レポート本文の内容は、使ってみて、良い文面が思いついたら見直す
-  var reportText = '今日の褒め状況レポートです。\n\n';
-  if ( yesterdayCount > 0 ) {
-    reportText += '昨日は *' + yesterdayCount + '回* 褒めています。\n';
-  }
-  reportText += '今月は *' + thisMonthCount + '回* 褒めています。\n\n';
-  reportText += '今日も1日どんどんみんなを褒めましょう🎉';
-  return reportText;
 }
 
 exports.scheduledDailyReportFunc = functions.region('asia-northeast1')
   .pubsub
   .schedule('every day 10:30')
   .timeZone(timezone)
-  .onRun(async (context) => {
-    const reportText = await createInfoReport();
-    await web.chat.postMessage({
-      token: token,
-      text: reportText,
-      channel: channel
-    });
-    return null;
-  });
+  .onRun(sendDailyReport);
