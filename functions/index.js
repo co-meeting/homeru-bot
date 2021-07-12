@@ -202,7 +202,6 @@ const sendMonthlyReport = async (context) => {
     const baseDate = new Date();
     const startDate = new Date(baseDate.getFullYear(), (baseDate.getMonth() - 1), 1, 0, 0, 0);
     const endDate = new Date(baseDate.getFullYear(), baseDate.getMonth(), 1, 0, 0, 0);
-    console.log(startDate, endDate);
     res.members.forEach(async (userId) => {
       const querySnapshot = await db.collection('praises')
         .where('to', '==', userId)
@@ -252,7 +251,7 @@ const sendMonthlyReport = async (context) => {
     return;
   } catch (err) {
     if (err) {
-      console.log(err.stack);
+      console.error(err.stack);
     }
     return;
   }
@@ -395,13 +394,10 @@ const createInfoReport = async () => {
   var thisMonthCount = 0;
   try {
     var now = new Date();
-    console.log(now);
     const today = new Date(now.setHours(0, 0, 0, 0));
     const yesterday = new Date(now.setDate(now.getDate() - 1));
     const thisMonth = new Date(now.setDate(1));
     const nextMonth = new Date(now.setMonth(now.getMonth() + 1 ));
-    console.log('期間(昨日)', yesterday, '~', today);
-    console.log('期間(今月)', thisMonth, '~', nextMonth);
     const yesterdayStartAt = admin.firestore.Timestamp.fromDate(yesterday);
     const yesterdayEndAt = admin.firestore.Timestamp.fromDate(today);
     const thisMonthStartAt = admin.firestore.Timestamp.fromDate(thisMonth);
@@ -422,7 +418,6 @@ const createInfoReport = async () => {
   }
   reportText += '今月は *' + thisMonthCount + '回* 褒めています。\n\n';
   reportText += '今日も1日どんどんみんなを褒めましょう🎉';
-  console.log(reportText);
   return reportText;
 }
 
@@ -431,7 +426,6 @@ exports.scheduledDailyReportFunc = functions.region('asia-northeast1')
   .schedule('every day 10:30')
   .timeZone(timezone)
   .onRun(async (context) => {
-    console.log('channel',channel);
     const reportText = await createInfoReport();
     await web.chat.postMessage({
       token: token,
