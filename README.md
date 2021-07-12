@@ -95,6 +95,7 @@ firebase functions:config:set slack.token=<ボットのアクセストークン>
 
 #### 3.デプロイする
 ```
+cd functions/
 npm run deploy
 ```
 
