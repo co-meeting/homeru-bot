@@ -74,7 +74,8 @@ Default username: homeru_bot
  2. [Firebase console](https://console.firebase.google.com/?hl=ja)にログインする。
  3. consoleで新しいFirebaseのプロジェクトを作成する。プロジェクト名は `homeru-bot` に設定する。
  4. 作成したFirebaseプロジェクトをBlaze（従量課金）にアップグレードする。
- 5. [Firebase CLI](https://firebase.google.com/docs/functions/get-started?authuser=0)をローカルにインストールする。
+ 5. Cloud Firestoreを開き、データベースの作成（本番環境モード、Cloud Firestore のロケーションは日本リージョンを選ぶ）
+ 6. [Firebase CLI](https://firebase.google.com/docs/functions/get-started?authuser=0)をローカルにインストールする。
 
 ※別のプロジェクト名を使用する場合は、 `.firebaserc` の内容を書き換えてください。
 
