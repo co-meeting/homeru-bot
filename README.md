@@ -77,8 +77,6 @@ Default username: homeru_bot
  5. Cloud Firestoreを開き、データベースの作成（本番環境モード、Cloud Firestore のロケーションは日本リージョンを選ぶ）
  6. [Firebase CLI](https://firebase.google.com/docs/functions/get-started?authuser=0)をローカルにインストールする。
 
-※別のプロジェクト名を使用する場合は、 `.firebaserc` の内容を書き換えてください。
-
 #### 1.プロジェクトでfirebaseにログイン
 ```
 firebase login
