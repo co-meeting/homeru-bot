@@ -292,9 +292,39 @@ async function openPostedList(payload) {
     await web.views.update({
       view_id: openedModalResponse.view.id,
       view: await getPostedListView(payload)
-    });
+    }).catch(async (err) => await web.views.update({
+      view_id: openedModalResponse.view.id,
+      view: getErrorView(err)
+    }));
   } catch (err) {
-    console.error(err);
+    await web.views.open({
+      token,
+      trigger_id: payload.trigger_id,
+      view: getErrorView(err)
+    })
+  }
+}
+
+function getErrorView(err) {
+  return {
+    "type": "modal",
+    "close": {
+      "type": "plain_text",
+      "text": "閉じる",
+      "emoji": true
+    },
+    "title": {
+      "type": "plain_text",
+      "text": "褒めボット",
+      "emoji": true
+    },
+    "blocks": [{
+      "type": "section",
+      "text": {
+        "type": "mrkdwn",
+        "text": "*エラーが発生しました。* " + (typeof err === 'string' && err) || err.message || ''
+      }
+    }]
   }
 }
 
