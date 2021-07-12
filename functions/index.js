@@ -50,7 +50,7 @@ const showHomeruView = async (payload, res) => {
           },
           "label": {
             "type": "plain_text",
-            "text": "褒める対象",
+            "text": "褒める相手",
             "emoji": true
           }
         },
@@ -63,13 +63,13 @@ const showHomeruView = async (payload, res) => {
             "multiline": true,
             "placeholder": {
               "type": "plain_text",
-              "text": "とにかく褒めてください",
+              "text": "褒めたり、感謝を伝えたりしましょう！",
               "emoji": true
             }
           },
           "label": {
             "type": "plain_text",
-            "text": "褒めコメント",
+            "text": "メッセージ",
             "emoji": true
           }
         }
