@@ -56,7 +56,7 @@ Display Name:褒めボット
 Default username: homeru_bot
 ```
 
-#### 6. Install App を開き、 `Install Appto Workspace` ボタンをクリックして組織にへインストール
+#### 6. Install App を開き、 `Install to Workspace` ボタンをクリックして組織にへインストール
 
 一度、インストールすると、それ以後、APIの各設定を変更状況に応じて、Reinstall を求められるため、メッセージに応じて`Reinstall App` ボタンをクリッックして、再インストールする
 
